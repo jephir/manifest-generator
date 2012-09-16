@@ -12,6 +12,8 @@ namespace ManifestGenerator
     {
         static SHA256 sha256 = new SHA256Managed();
 
+        int version;
+
         public string ContentDirectory { get; set; }
         public string ContentServerUri { get; set; }
         public string OutputFile { get; set; }
@@ -23,7 +25,9 @@ namespace ManifestGenerator
         public override void Execute()
         {
             SetDefaults();
+            LoadVersion();
             CreateManifest();
+            SaveVersion();
         }
 
         void SetDefaults()
@@ -33,12 +37,31 @@ namespace ManifestGenerator
             OutputFile = OutputFile ?? Path.Combine(ContentDirectory, "manifest.xml");
         }
 
+        void LoadVersion()
+        {
+            if (File.Exists("version.txt"))
+            {
+                version = Convert.ToInt32(File.ReadAllText("version.txt"));
+            }
+            else
+            {
+                version = 0;
+            }
+        }
+
+        void SaveVersion()
+        {
+            File.WriteAllText("version.txt", version.ToString());
+        }
+
         void CreateManifest()
         {
             var contentDirectory = new DirectoryInfo(ContentDirectory);
             var files = contentDirectory.GetFiles("*", SearchOption.AllDirectories);
             var document = new XDocument(new XDeclaration("1.0", Encoding.UTF8.HeaderName, String.Empty));
             var package = new XElement("package");
+
+            package.Add(new XAttribute("version", ++version));
 
             if (InstallerPath != null)
             {
