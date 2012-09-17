@@ -17,9 +17,6 @@ namespace ManifestGenerator
         public string ContentDirectory { get; set; }
         public string ContentServerUri { get; set; }
         public string OutputFile { get; set; }
-        public string InstallerPath { get; set; }
-        public string ApplicationPath { get; set; }
-        public string ApplicationArguments { get; set; }
         public bool? IncludeManifest { get; set; }
 
         public override void Execute()
@@ -62,21 +59,6 @@ namespace ManifestGenerator
             var package = new XElement("package");
 
             package.Add(new XAttribute("version", ++version));
-
-            if (InstallerPath != null)
-            {
-                var installer = new XElement("installer");
-                installer.Add(new XAttribute("path", InstallerPath));
-                package.Add(installer);
-            }
-
-            if (ApplicationPath != null)
-            {
-                var application = new XElement("application");
-                application.Add(new XAttribute("path", ApplicationPath));
-                if (ApplicationArguments != null) application.Add(new XAttribute("arguments", ApplicationArguments));
-                package.Add(application);
-            }
 
             foreach (var file in files)
             {
